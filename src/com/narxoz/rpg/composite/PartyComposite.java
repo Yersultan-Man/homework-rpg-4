@@ -3,6 +3,7 @@ package com.narxoz.rpg.composite;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PartyComposite implements CombatNode {
     private final String name;
@@ -27,33 +28,42 @@ public class PartyComposite implements CombatNode {
 
     @Override
     public int getHealth() {
-        // TODO: Composite aggregation
-        // Return total health of all children (and nested children).
-        return 0;
+        return children.stream()
+                .mapToInt(CombatNode::getHealth)
+                .sum();
     }
 
     @Override
     public int getAttackPower() {
-        // TODO: Composite aggregation
-        // Return total attack of alive children only.
-        return 0;
+        return getAliveChildren().stream()
+                .mapToInt(CombatNode::getAttackPower)
+                .sum();
     }
 
     @Override
     public void takeDamage(int amount) {
-        // TODO: Composite distribution
-        // Distribute incoming damage across alive children.
-        // Suggested baseline:
-        // 1) Collect alive children
-        // 2) Split amount evenly (or using your own documented rule)
-        // 3) Apply damage to each child
+        if (amount <= 0 || !isAlive()) {
+            return;
+        }
+
+        List<CombatNode> alive = getAliveChildren();
+        if (alive.isEmpty()) {
+            return;
+        }
+
+        // Простое равномерное распределение урона
+        int damagePerUnit = amount / alive.size();
+        int remainder = amount % alive.size();
+
+        for (int i = 0; i < alive.size(); i++) {
+            int dmg = damagePerUnit + (i < remainder ? 1 : 0);
+            alive.get(i).takeDamage(dmg);
+        }
     }
 
     @Override
     public boolean isAlive() {
-        // TODO: Composite liveness
-        // Return true when at least one child is alive.
-        return false;
+        return children.stream().anyMatch(CombatNode::isAlive);
     }
 
     @Override
@@ -63,13 +73,19 @@ public class PartyComposite implements CombatNode {
 
     @Override
     public void printTree(String indent) {
-        // TODO: Tree visualization
-        // Print this node and recurse into children with increased indent.
-        System.out.println(indent + "+ " + name + " [TODO: compute HP/ATK]");
+        int totalHP = getHealth();
+        int totalATK = getAttackPower();
+        System.out.println(indent + "+ " + name + " [HP=" + totalHP + ", ATK=" + totalATK + "]");
+
+        String childIndent = indent + "  ";
+        for (CombatNode child : children) {
+            child.printTree(childIndent);
+        }
     }
 
     private List<CombatNode> getAliveChildren() {
-        // TODO: helper for takeDamage()
-        return new ArrayList<>();
+        return children.stream()
+                .filter(CombatNode::isAlive)
+                .collect(Collectors.toList());
     }
 }
