@@ -41,5 +41,17 @@ java -cp out com.narxoz.rpg.Main
 - Completed Java code
 - UML diagrams (2)
 - Clear console output from demo
+## UML-диаграммы
 
+### Bridge
+
+![Bridge](diagrams/bridge.png)
+
+### Composite
+![Composite](diagrams/Composite.png)
+
+## Вывод программы
+
+## Ссылка на код
+https://github.com/Yersultan-Man/homework-rpg-4.git
 Read `ASSIGNMENT.md` for full instructions and rubric.
